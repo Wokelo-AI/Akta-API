@@ -1,0 +1,11 @@
+curl --request POST \
+  --url 'https://api.wokelo.ai/api/enterprise/newsfeed/news/' \
+  --header 'Authorization: Bearer YOUR_TOKEN' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "breaking_news": true,
+    "geo": ["USA"],
+    "sentiment": "positive",
+    "published_date_after": "2026-04-01",
+    "published_date_before": "2026-04-30"
+  }'

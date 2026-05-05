@@ -1,0 +1,3 @@
+curl --request GET \
+  --url 'https://api.wokelo.ai/api/enterprise/industry/news/?topic=Real%20Estate%20Development&geo=ARE&start_date=2026-04-01&end_date=2026-04-30&limit=100' \
+  --header 'Authorization: Bearer YOUR_TOKEN'

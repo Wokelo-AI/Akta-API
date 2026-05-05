@@ -1,0 +1,11 @@
+extends:
+  - recommended
+apis:
+  akta@v1:
+    root: openapi/openapi.yaml
+rules:
+  no-path-trailing-slash: off
+  no-unused-components: warn
+  info-license-strict: off
+  operation-4xx-response: error
+  security-defined: error

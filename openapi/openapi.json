@@ -1,0 +1,1096 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Akta News Monitoring API",
+    "summary": "AI-enriched company, industry, and filtered news monitoring endpoints.",
+    "description": "The Akta News Monitoring API returns recent news articles enriched with AI summaries,\npublisher metadata, sentiment, geography, categories, and impact signals.\n\nThe legacy report endpoints are included for backwards compatibility and are marked as deprecated.\n",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Wokelo AI",
+      "url": "https://akta.wokelo.ai/"
+    },
+    "license": {
+      "name": "Proprietary"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.wokelo.ai",
+      "description": "Production"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Monitoring",
+      "description": "Current news monitoring endpoints."
+    },
+    {
+      "name": "Legacy",
+      "description": "Deprecated report-based news endpoints."
+    }
+  ],
+  "paths": {
+    "/api/enterprise/company/news/": {
+      "get": {
+        "operationId": "getCompanyNews",
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Fetch company news",
+        "description": "Fetches the latest news articles for a company, enriched with AI-generated\nsummaries, categories, publisher details, geography, sentiment, and impact signals.\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Company"
+          },
+          {
+            "$ref": "#/components/parameters/BlacklistedDomainsCsv"
+          },
+          {
+            "$ref": "#/components/parameters/PublishersCsv"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          },
+          {
+            "$ref": "#/components/parameters/StartDate"
+          },
+          {
+            "$ref": "#/components/parameters/EndDate"
+          },
+          {
+            "$ref": "#/components/parameters/CategoryCsv"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Company news returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CompanyNewsResponse"
+                },
+                "examples": {
+                  "tesla": {
+                    "$ref": "#/components/examples/CompanyNewsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/enterprise/industry/news/": {
+      "get": {
+        "operationId": "getIndustryNews",
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Fetch industry news",
+        "description": "Fetches the latest news articles for an industry topic, enriched with AI-generated\nsummaries, publisher details, geography, and pagination metadata.\n",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Topic"
+          },
+          {
+            "$ref": "#/components/parameters/BlacklistedDomainsCsv"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          },
+          {
+            "$ref": "#/components/parameters/Offset"
+          },
+          {
+            "$ref": "#/components/parameters/StartDate"
+          },
+          {
+            "$ref": "#/components/parameters/EndDate"
+          },
+          {
+            "$ref": "#/components/parameters/GeoCsv"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Industry news returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndustryNewsResponse"
+                },
+                "examples": {
+                  "realEstateDevelopment": {
+                    "$ref": "#/components/examples/IndustryNewsResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/enterprise/newsfeed/news/": {
+      "post": {
+        "operationId": "searchNewsfeed",
+        "tags": [
+          "Monitoring"
+        ],
+        "summary": "Search newsfeed",
+        "description": "Fetches the latest news articles based on user-defined filters such as industry,\ngeography, sentiment, publication date range, breaking-news status, pagination,\nand blacklisted publishers.\n",
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewsfeedRequest"
+              },
+              "examples": {
+                "positiveBreakingNews": {
+                  "$ref": "#/components/examples/NewsfeedRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Filtered newsfeed returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewsfeedResponse"
+                },
+                "examples": {
+                  "positiveBreakingNews": {
+                    "$ref": "#/components/examples/NewsfeedResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/news/start/": {
+      "post": {
+        "operationId": "startLegacyNewsReport",
+        "tags": [
+          "Legacy"
+        ],
+        "summary": "Start legacy news report",
+        "description": "Initiates a legacy company news report and returns a report identifier.\nEither `website` or `permalink` must be supplied as the company identifier.\n",
+        "deprecated": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LegacyStartNewsReportRequest"
+              },
+              "examples": {
+                "byWebsite": {
+                  "$ref": "#/components/examples/LegacyStartNewsReportRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report started successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyStartNewsReportResponse"
+                },
+                "examples": {
+                  "started": {
+                    "$ref": "#/components/examples/LegacyStartNewsReportResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/api/news/fetch/": {
+      "post": {
+        "operationId": "fetchLegacyNewsReport",
+        "tags": [
+          "Legacy"
+        ],
+        "summary": "Fetch legacy news report",
+        "description": "Retrieves news items from an existing legacy report.",
+        "deprecated": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LegacyFetchNewsReportRequest"
+              },
+              "examples": {
+                "byReportId": {
+                  "$ref": "#/components/examples/LegacyFetchNewsReportRequest"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Report news returned successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegacyFetchNewsReportResponse"
+                },
+                "examples": {
+                  "fetched": {
+                    "$ref": "#/components/examples/LegacyFetchNewsReportResponse"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from the authentication endpoint."
+      }
+    },
+    "parameters": {
+      "Company": {
+        "name": "company",
+        "in": "query",
+        "required": true,
+        "description": "Company permalink or a valid company URL.",
+        "schema": {
+          "type": "string"
+        },
+        "examples": {
+          "permalink": {
+            "value": "tesla"
+          },
+          "url": {
+            "value": "https://www.tesla.com/"
+          }
+        }
+      },
+      "Topic": {
+        "name": "topic",
+        "in": "query",
+        "required": true,
+        "description": "Industry topic for which news articles should be fetched.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "Real Estate Development"
+      },
+      "BlacklistedDomainsCsv": {
+        "name": "blacklisted",
+        "in": "query",
+        "required": false,
+        "description": "Comma-separated publisher domains to exclude from results.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "example.com,anotherpublisher.com"
+      },
+      "PublishersCsv": {
+        "name": "publishers",
+        "in": "query",
+        "required": false,
+        "description": "Comma-separated publisher domains whose articles should be included.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "reuters.com,techcrunch.com"
+      },
+      "Limit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Maximum number of news articles to return.",
+        "schema": {
+          "type": "integer",
+          "default": 100,
+          "maximum": 1000,
+          "minimum": 1
+        },
+        "example": 100
+      },
+      "Offset": {
+        "name": "offset",
+        "in": "query",
+        "required": false,
+        "description": "Number of news articles to skip before returning results.",
+        "schema": {
+          "type": "integer",
+          "default": 0,
+          "minimum": 0
+        },
+        "example": 0
+      },
+      "StartDate": {
+        "name": "start_date",
+        "in": "query",
+        "required": false,
+        "description": "Start date for the news timeframe.",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "example": "2024-01-01"
+      },
+      "EndDate": {
+        "name": "end_date",
+        "in": "query",
+        "required": false,
+        "description": "End date for the news timeframe.",
+        "schema": {
+          "type": "string",
+          "format": "date"
+        },
+        "example": "2024-12-31"
+      },
+      "CategoryCsv": {
+        "name": "category",
+        "in": "query",
+        "required": false,
+        "description": "Comma-separated list of news categories.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "PRODUCT RELATED"
+      },
+      "GeoCsv": {
+        "name": "geo",
+        "in": "query",
+        "required": false,
+        "description": "Comma-separated list of 3-letter ISO country codes.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "ARE"
+      }
+    },
+    "schemas": {
+      "NewsfeedRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "industry": {
+            "type": "string",
+            "description": "Industry topic for which news articles should be fetched.",
+            "example": "Artificial Intelligence"
+          },
+          "blacklisted": {
+            "type": "string",
+            "description": "Comma-separated publisher domains to exclude from results.",
+            "example": "example.com,anotherpublisher.com"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Maximum number of news articles to return.",
+            "default": 100,
+            "maximum": 1000,
+            "minimum": 1,
+            "example": 100
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Number of news articles to skip before returning results.",
+            "default": 0,
+            "minimum": 0,
+            "example": 0
+          },
+          "published_date_after": {
+            "type": "string",
+            "format": "date",
+            "description": "Start date for the news timeframe.",
+            "example": "2026-04-01"
+          },
+          "published_date_before": {
+            "type": "string",
+            "format": "date",
+            "description": "End date for the news timeframe.",
+            "example": "2026-04-30"
+          },
+          "geo": {
+            "type": "array",
+            "description": "List of 3-letter ISO country codes.",
+            "items": {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3
+            },
+            "example": [
+              "USA"
+            ]
+          },
+          "sentiment": {
+            "type": "string",
+            "description": "News article sentiment.",
+            "enum": [
+              "positive",
+              "negative",
+              "neutral"
+            ],
+            "example": "positive"
+          },
+          "breaking_news": {
+            "type": "boolean",
+            "description": "Set to true to fetch breaking news.",
+            "example": true
+          }
+        }
+      },
+      "LegacyStartNewsReportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "whitelisted_domains": {
+            "type": "array",
+            "description": "Domains of news sources from which to fetch news.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "reuters.com"
+            ]
+          },
+          "blacklisted_domains": {
+            "type": "array",
+            "description": "News source domains to exclude from search.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "example.com"
+            ]
+          },
+          "news_limit": {
+            "type": "integer",
+            "description": "Number of news items to retrieve.",
+            "default": 1000,
+            "minimum": 1,
+            "example": 1000
+          },
+          "start_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date from which news will be retrieved. Defaults to two years before the request date.",
+            "example": "2024-01-01"
+          },
+          "end_date": {
+            "type": "string",
+            "format": "date",
+            "description": "Date through which news will be retrieved. Defaults to the current date.",
+            "example": "2024-12-31"
+          },
+          "website": {
+            "type": "string",
+            "description": "Website of the target company.",
+            "example": "wokelo.ai"
+          },
+          "permalink": {
+            "type": "string",
+            "description": "Crunchbase permalink of the target company.",
+            "example": "wokelo"
+          }
+        },
+        "anyOf": [
+          {
+            "required": [
+              "website"
+            ]
+          },
+          {
+            "required": [
+              "permalink"
+            ]
+          }
+        ]
+      },
+      "LegacyFetchNewsReportRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "report_id"
+        ],
+        "properties": {
+          "report_id": {
+            "type": "integer",
+            "description": "Report ID of the news report to retrieve.",
+            "example": 72053
+          },
+          "page": {
+            "type": "integer",
+            "description": "Page number to return.",
+            "default": 1,
+            "minimum": 1,
+            "example": 1
+          },
+          "page_size": {
+            "type": "integer",
+            "description": "Number of news items per page.",
+            "default": 500,
+            "minimum": 1,
+            "example": 500
+          }
+        }
+      },
+      "CompanyNewsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginatedNewsResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/CompanyNewsArticle"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "IndustryNewsResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginatedNewsResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/IndustryNewsArticle"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "NewsfeedResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/PaginatedNewsResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NewsfeedArticle"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "PaginatedNewsResponse": {
+        "type": "object",
+        "required": [
+          "status",
+          "data",
+          "count"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "success"
+            ],
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseNewsArticle"
+            }
+          },
+          "count": {
+            "type": "integer",
+            "description": "Number of results returned in this response.",
+            "example": 4
+          },
+          "total": {
+            "type": "integer",
+            "description": "Total number of results available.",
+            "example": 4
+          },
+          "limit": {
+            "type": "integer",
+            "description": "Effective result limit.",
+            "example": 100
+          },
+          "offset": {
+            "type": "integer",
+            "description": "Effective result offset.",
+            "example": 0
+          }
+        }
+      },
+      "BaseNewsArticle": {
+        "type": "object",
+        "additionalProperties": true,
+        "required": [
+          "ai_summary",
+          "url",
+          "title"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "News article identifier.",
+            "example": 10633767
+          },
+          "ai_summary": {
+            "type": "string",
+            "description": "AI-generated article summary."
+          },
+          "type": {
+            "type": "string",
+            "description": "Primary event or news type.",
+            "example": "Secondary Transactions"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Source article URL."
+          },
+          "title": {
+            "type": "string",
+            "description": "Article title."
+          },
+          "published_date": {
+            "type": "string",
+            "description": "Publication timestamp returned by the API.",
+            "example": "2026-04-30 00:00:00"
+          },
+          "source": {
+            "type": "string",
+            "description": "Data source.",
+            "example": "Wokelo"
+          },
+          "sentiment": {
+            "type": "string",
+            "description": "Article sentiment label.",
+            "example": "Positive"
+          },
+          "newsworthiness_impact": {
+            "type": "string",
+            "description": "Newsworthiness or impact label.",
+            "example": "Medium"
+          }
+        }
+      },
+      "CompanyNewsArticle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseNewsArticle"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "company_name": {
+                "type": "string",
+                "example": "Tesla"
+              },
+              "publisher": {
+                "type": "string",
+                "example": "defenseworld"
+              },
+              "author": {
+                "type": "string",
+                "example": "Defense World Staff"
+              },
+              "countries": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "USA"
+                ]
+              },
+              "primary_tag": {
+                "type": "string",
+                "example": "Secondary Transactions"
+              },
+              "original_language": {
+                "type": "string",
+                "example": "EN"
+              },
+              "secondary_tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "Earnings Releases",
+                  "Revenue & Growth Metrics",
+                  "Guidance & Forecast Revisions"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "IndustryNewsArticle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseNewsArticle"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "geo": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "ARE"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "NewsfeedArticle": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseNewsArticle"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "geo": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "example": [
+                  "USA"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "LegacyStartNewsReportResponse": {
+        "type": "object",
+        "required": [
+          "report_id"
+        ],
+        "properties": {
+          "report_id": {
+            "type": "integer",
+            "example": 2000156
+          }
+        }
+      },
+      "LegacyFetchNewsReportResponse": {
+        "type": "object",
+        "required": [
+          "report_id",
+          "data"
+        ],
+        "properties": {
+          "report_id": {
+            "type": "integer",
+            "example": 72053
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BaseNewsArticle"
+            }
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "additionalProperties": true,
+        "properties": {
+          "status": {
+            "type": "string",
+            "examples": [
+              "error"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "examples": [
+              "Request could not be processed."
+            ]
+          },
+          "detail": {
+            "type": "string",
+            "examples": [
+              "Invalid request parameters."
+            ]
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Invalid request parameters.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Missing, invalid, or expired JWT token.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Unexpected server error.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "examples": {
+      "NewsfeedRequest": {
+        "summary": "Positive breaking news in the USA",
+        "value": {
+          "breaking_news": true,
+          "geo": [
+            "USA"
+          ],
+          "sentiment": "positive",
+          "published_date_after": "2026-04-01",
+          "published_date_before": "2026-04-30"
+        }
+      },
+      "CompanyNewsResponse": {
+        "summary": "Company news response",
+        "value": {
+          "status": "success",
+          "data": [
+            {
+              "ai_summary": "Nordea Investment Management AB reduced its stake in Tesla, Inc. by 8.4% in the fourth quarter, according to its SEC filing.",
+              "type": "Secondary Transactions",
+              "url": "https://www.defenseworld.net/2026/03/23/nordea-investment-management-ab-lowers-position-in-tesla-inc-tsla.html",
+              "title": "Nordea Investment Management AB Lowers Position in Tesla, Inc. $TSLA",
+              "company_name": "Tesla",
+              "publisher": "defenseworld",
+              "published_date": "2026-03-23 10:52:44",
+              "source": "Wokelo",
+              "author": "Defense World Staff",
+              "countries": [
+                "USA"
+              ],
+              "sentiment": "Neutral",
+              "primary_tag": "Secondary Transactions",
+              "original_language": "EN",
+              "secondary_tags": [
+                "Earnings Releases",
+                "Revenue & Growth Metrics",
+                "Guidance & Forecast Revisions"
+              ],
+              "newsworthiness_impact": "Medium"
+            }
+          ],
+          "count": 4,
+          "total": 4,
+          "limit": 100,
+          "offset": 0
+        }
+      },
+      "IndustryNewsResponse": {
+        "summary": "Industry news response",
+        "value": {
+          "status": "success",
+          "data": [
+            {
+              "id": 10442144,
+              "ai_summary": "Nakheel has awarded contracts worth over Dh3.5 billion to construct 544 villas on Palm Jebel Ali.",
+              "url": "https://gulfnews.com/business/property/nakheel-awards-dh35-billion-contracts-for-palm-jebel-ali-villas-1.500520259",
+              "title": "Nakheel Awards Dh3.5 Billion Contracts for 544 Palm Jebel Ali Villas in Major Dubai Waterfront Push",
+              "published_date": "2026-04-27 05:20:10",
+              "source": "Wokelo",
+              "geo": [
+                "ARE"
+              ]
+            }
+          ],
+          "count": 14,
+          "total": 14,
+          "limit": 100,
+          "offset": 0
+        }
+      },
+      "NewsfeedResponse": {
+        "summary": "Newsfeed response",
+        "value": {
+          "status": "success",
+          "data": [
+            {
+              "id": 10633767,
+              "url": "https://markets.businessinsider.com/news/stocks/ttec-recognized-as-a-major-contender-in-everest-group-s-2026-healthcare-cxm-intelligent-operations-peak-matrix-assessment-1036090124",
+              "title": "TTEC Recognized as a Major Contender in Everest Group's 2026 Healthcare CXM Intelligent Operations PEAK Matrix Assessment",
+              "ai_summary": "TTEC was recognized as a Major Contender in Everest Group's 2026 Healthcare CXM Intelligent Operations PEAK Matrix Assessment.",
+              "published_date": "2026-04-30 00:00:00",
+              "source": "Wokelo",
+              "geo": [
+                "USA"
+              ],
+              "sentiment": "Positive",
+              "newsworthiness_impact": "Medium"
+            }
+          ],
+          "count": 100,
+          "total": 100,
+          "limit": 100,
+          "offset": 0
+        }
+      },
+      "LegacyStartNewsReportRequest": {
+        "summary": "Start by company website",
+        "value": {
+          "website": "wokelo.ai"
+        }
+      },
+      "LegacyStartNewsReportResponse": {
+        "summary": "Report started",
+        "value": {
+          "report_id": 2000156
+        }
+      },
+      "LegacyFetchNewsReportRequest": {
+        "summary": "Fetch by report ID",
+        "value": {
+          "report_id": 72053,
+          "page": 1,
+          "page_size": 500
+        }
+      },
+      "LegacyFetchNewsReportResponse": {
+        "summary": "Report fetched",
+        "value": {
+          "report_id": 72053,
+          "data": [
+            {
+              "ai_summary": "Wokelo has announced a minority equity investment from KPMG LLP, marking a significant step in their growth strategy.",
+              "type": "Investments",
+              "url": "https://kpmg.com/us/en/media/news/kpmg-wokelo-investment-2024.html",
+              "title": "Wokelo Announces Minority Equity Investment from KPMG LLP"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
