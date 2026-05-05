@@ -3,10 +3,11 @@ info:
   title: Akta News Monitoring API
   summary: AI-enriched company, industry, and filtered news monitoring endpoints.
   description: |
-    The Akta News Monitoring API returns recent news articles enriched with AI summaries,
-    publisher metadata, sentiment, geography, categories, and impact signals.
+    Akta is a structured news API for AI workflows, monitoring products, and business
+    intelligence applications. It returns recent news articles enriched with AI summaries,
+    publisher metadata, entity context, sentiment, geography, categories, and impact signals.
 
-    The legacy report endpoints are included for backwards compatibility and are marked as deprecated.
+    Deprecated report-based endpoints are included for backwards compatibility.
   version: 1.0.0
   contact:
     name: Wokelo AI
@@ -21,7 +22,7 @@ security:
 tags:
   - name: Monitoring
     description: Current news monitoring endpoints.
-  - name: Legacy
+  - name: Reports
     description: Deprecated report-based news endpoints.
 paths:
   /api/enterprise/company/news/:
@@ -134,12 +135,12 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/news/start/:
     post:
-      operationId: startLegacyNewsReport
+      operationId: startNewsReport
       tags:
-        - Legacy
-      summary: Start legacy news report
+        - Reports
+      summary: Start report-based news run
       description: |
-        Initiates a legacy company news report and returns a report identifier.
+        Starts a report-based company news run and returns a report identifier.
         Either `website` or `permalink` must be supplied as the company identifier.
       deprecated: true
       requestBody:
@@ -147,20 +148,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LegacyStartNewsReportRequest'
+              $ref: '#/components/schemas/StartNewsReportRequest'
             examples:
               byWebsite:
-                $ref: '#/components/examples/LegacyStartNewsReportRequest'
+                $ref: '#/components/examples/StartNewsReportRequest'
       responses:
         '200':
           description: Report started successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LegacyStartNewsReportResponse'
+                $ref: '#/components/schemas/StartNewsReportResponse'
               examples:
                 started:
-                  $ref: '#/components/examples/LegacyStartNewsReportResponse'
+                  $ref: '#/components/examples/StartNewsReportResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -171,31 +172,31 @@ paths:
           $ref: '#/components/responses/InternalServerError'
   /api/news/fetch/:
     post:
-      operationId: fetchLegacyNewsReport
+      operationId: fetchNewsReport
       tags:
-        - Legacy
-      summary: Fetch legacy news report
-      description: Retrieves news items from an existing legacy report.
+        - Reports
+      summary: Fetch report-based news results
+      description: Retrieves news items from an existing report-based company news run.
       deprecated: true
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LegacyFetchNewsReportRequest'
+              $ref: '#/components/schemas/FetchNewsReportRequest'
             examples:
               byReportId:
-                $ref: '#/components/examples/LegacyFetchNewsReportRequest'
+                $ref: '#/components/examples/FetchNewsReportRequest'
       responses:
         '200':
           description: Report news returned successfully.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LegacyFetchNewsReportResponse'
+                $ref: '#/components/schemas/FetchNewsReportResponse'
               examples:
                 fetched:
-                  $ref: '#/components/examples/LegacyFetchNewsReportResponse'
+                  $ref: '#/components/examples/FetchNewsReportResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -210,7 +211,7 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
-      description: JWT token obtained from the authentication endpoint.
+      description: Bearer token for an Akta API account.
   parameters:
     Company:
       name: company
@@ -360,7 +361,7 @@ components:
           type: boolean
           description: Set to true to fetch breaking news.
           example: true
-    LegacyStartNewsReportRequest:
+    StartNewsReportRequest:
       type: object
       additionalProperties: false
       properties:
@@ -407,7 +408,7 @@ components:
             - website
         - required:
             - permalink
-    LegacyFetchNewsReportRequest:
+    FetchNewsReportRequest:
       type: object
       additionalProperties: false
       required:
@@ -520,7 +521,7 @@ components:
           example: 2026-04-30 00:00:00
         source:
           type: string
-          description: Data source.
+          description: News data source.
           example: Wokelo
         sentiment:
           type: string
@@ -538,6 +539,21 @@ components:
             company_name:
               type: string
               example: Tesla
+            company_names:
+              type: array
+              description: Related companies or entities identified in the article.
+              items:
+                type: object
+                additionalProperties: true
+                properties:
+                  name:
+                    type: string
+                  website:
+                    type: string
+                    format: uri
+              example:
+                - name: Tesla
+                  website: https://www.tesla.com/
             publisher:
               type: string
               example: defenseworld
@@ -564,6 +580,12 @@ components:
                 - Earnings Releases
                 - Revenue & Growth Metrics
                 - Guidance & Forecast Revisions
+            primary_industry:
+              type: string
+              example: Industrial Automation & Robotics
+            secondary_industry:
+              type: string
+              example: Private Capital Markets
     IndustryNewsArticle:
       allOf:
         - $ref: '#/components/schemas/BaseNewsArticle'
@@ -586,7 +608,7 @@ components:
                 type: string
               example:
                 - USA
-    LegacyStartNewsReportResponse:
+    StartNewsReportResponse:
       type: object
       required:
         - report_id
@@ -594,7 +616,7 @@ components:
         report_id:
           type: integer
           example: 2000156
-    LegacyFetchNewsReportResponse:
+    FetchNewsReportResponse:
       type: object
       required:
         - report_id
@@ -722,21 +744,21 @@ components:
         total: 100
         limit: 100
         offset: 0
-    LegacyStartNewsReportRequest:
+    StartNewsReportRequest:
       summary: Start by company website
       value:
         website: wokelo.ai
-    LegacyStartNewsReportResponse:
+    StartNewsReportResponse:
       summary: Report started
       value:
         report_id: 2000156
-    LegacyFetchNewsReportRequest:
+    FetchNewsReportRequest:
       summary: Fetch by report ID
       value:
         report_id: 72053
         page: 1
         page_size: 500
-    LegacyFetchNewsReportResponse:
+    FetchNewsReportResponse:
       summary: Report fetched
       value:
         report_id: 72053

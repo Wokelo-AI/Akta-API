@@ -2,7 +2,11 @@
 
 OpenAPI specification and integration examples for the Akta News Monitoring API by Wokelo AI.
 
-The API returns recent news articles enriched with AI-generated summaries, publisher metadata, sentiment, geography, categories, and impact signals.
+Akta is a structured news API for AI workflows, monitoring products, and business intelligence applications. It returns recent news articles enriched with AI-generated summaries, publisher metadata, entity context, sentiment, geography, categories, and impact signals.
+
+- Website: [akta.wokelo.ai](https://akta.wokelo.ai/)
+- API docs: [docs.akta.pro](https://docs.akta.pro/)
+- Get API access: [playground.akta.pro](https://playground.akta.pro/)
 
 ## API Spec
 
@@ -17,23 +21,38 @@ https://api.wokelo.ai
 
 ## Authentication
 
-All endpoints require a JWT bearer token:
+All endpoints require bearer authentication:
 
 ```http
 Authorization: Bearer YOUR_TOKEN
 ```
 
-Use the JWT token provided for your Akta API account.
+Use the token provided for your Akta API account.
 
 ## Endpoints
 
 | Method | Path | Status | Description |
 | --- | --- | --- | --- |
-| `GET` | `/api/enterprise/company/news/` | Current | Fetch AI-enriched news for a company permalink or company URL. |
-| `GET` | `/api/enterprise/industry/news/` | Current | Fetch AI-enriched news for an industry topic. |
-| `POST` | `/api/enterprise/newsfeed/news/` | Current | Search the newsfeed using filters such as geography, sentiment, date range, and breaking-news status. |
-| `POST` | `/api/news/start/` | Legacy | Start a report-based company news run. |
-| `POST` | `/api/news/fetch/` | Legacy | Fetch news items from a legacy report run. |
+| `GET` | `/api/enterprise/company/news/` | Current | Fetch news for a company using a company permalink or website URL. Supports publisher, category, date range, limit, and offset filters. |
+| `GET` | `/api/enterprise/industry/news/` | Current | Fetch news for an industry topic. Supports geography, date range, limit, offset, and excluded publisher filters. |
+| `POST` | `/api/enterprise/newsfeed/news/` | Current | Search the newsfeed using filters such as industry, geography, sentiment, publication date range, breaking-news status, limit, and offset. |
+| `POST` | `/api/news/start/` | Deprecated | Start a report-based company news run. |
+| `POST` | `/api/news/fetch/` | Deprecated | Fetch news items from a report-based company news run. |
+
+## Response Data
+
+Responses vary by endpoint, but news records may include:
+
+- `title`, `url`, and `published_date`
+- `ai_summary`
+- `publisher`, `author`, and `source`
+- `company_name` or related entity fields
+- `countries` or `geo`
+- `sentiment`
+- `type`, `primary_tag`, and `secondary_tags`
+- `newsworthiness_impact`
+
+Paginated responses include `count`, and may also include `total`, `limit`, and `offset`.
 
 ## Quick Start
 
@@ -76,8 +95,8 @@ npm run bundle
 
 ## Repository Contents
 
-- `openapi/`: canonical OpenAPI artifacts.
-- `examples/`: runnable cURL examples for common integration flows.
+- `openapi/`: OpenAPI YAML and bundled JSON specifications.
+- `examples/`: cURL examples for common integration flows.
 
 ## License
 
