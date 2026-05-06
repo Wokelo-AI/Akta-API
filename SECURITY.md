@@ -6,4 +6,4 @@ Please report suspected security issues privately to the Wokelo AI team. Do not 
 
 ## Token Handling
 
-Do not commit API tokens, JWTs, `.env` files, request logs containing credentials, or customer data to this repository.
+Do not commit API keys, `.env` files, request logs containing credentials, or customer data to this repository.

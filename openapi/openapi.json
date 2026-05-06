@@ -2,12 +2,13 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Akta Company News API",
-    "summary": "Company news monitoring endpoint for Akta by Wokelo AI.",
-    "description": "Akta provides structured company news monitoring with AI-generated summaries\nand article metadata.\n\nThis repository documents the currently exposed Akta company news endpoint.\n",
-    "version": "1.0.0",
+    "summary": "Structured company news API for AI workflows, agents, and enterprise news intelligence.",
+    "description": "Akta is a structured company news API by Wokelo AI.\n\nThe Company News Monitoring endpoint returns recent company news articles enriched\nwith AI summaries, event categories, publisher metadata, sentiment, company\nmentions, geography, industry tags, and article text.\n\nThis OpenAPI description documents the public Akta Company News Monitoring API.\n",
+    "version": "1.1.0",
     "contact": {
       "name": "Wokelo AI",
-      "url": "https://akta.wokelo.ai/"
+      "url": "https://akta.wokelo.ai/",
+      "email": "sales@wokelo.ai"
     },
     "license": {
       "name": "Proprietary"
@@ -27,7 +28,7 @@
   "tags": [
     {
       "name": "Company News",
-      "description": "Structured company news monitoring."
+      "description": "Fetch structured company news with summaries, metadata, sentiment, tags, and article text."
     }
   ],
   "paths": {
@@ -38,7 +39,7 @@
           "Company News"
         ],
         "summary": "Fetch company news",
-        "description": "Returns recent news articles for a company. The `company` query can be a\ncompany slug such as `tesla` or a company website URL such as\n`https://www.tesla.com/`.\n",
+        "description": "Returns recent news articles for a company.\n\nThe `company` query can be a company slug, company name, or company website URL.\nResults are returned synchronously in the HTTP response. Use `limit` and\n`offset` to paginate larger result sets.\n",
         "parameters": [
           {
             "$ref": "#/components/parameters/Company"
@@ -50,16 +51,16 @@
             "$ref": "#/components/parameters/EndDate"
           },
           {
+            "$ref": "#/components/parameters/Category"
+          },
+          {
             "$ref": "#/components/parameters/Limit"
           },
           {
             "$ref": "#/components/parameters/Offset"
           },
           {
-            "$ref": "#/components/parameters/Category"
-          },
-          {
-            "$ref": "#/components/parameters/BlacklistedDomainsCsv"
+            "$ref": "#/components/parameters/Blacklisted"
           }
         ],
         "responses": {
@@ -100,7 +101,7 @@
         "type": "apiKey",
         "in": "header",
         "name": "x-api-key",
-        "description": "API key issued for an Akta account."
+        "description": "API key issued from the Akta Playground."
       }
     },
     "parameters": {
@@ -108,15 +109,19 @@
         "name": "company",
         "in": "query",
         "required": true,
-        "description": "Company slug or company website URL.",
+        "description": "Company name, company slug, or valid company URL for which news articles should be fetched.",
         "schema": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "examples": {
-          "slug": {
+          "companyName": {
+            "value": "tesla"
+          },
+          "companySlug": {
             "value": "wokelo-ai"
           },
-          "website": {
+          "companyUrl": {
             "value": "https://www.tesla.com/"
           }
         }
@@ -125,29 +130,39 @@
         "name": "start_date",
         "in": "query",
         "required": false,
-        "description": "Start date for the requested news window.",
+        "description": "Start date for the news timeframe, formatted as YYYY-MM-DD.",
         "schema": {
           "type": "string",
           "format": "date"
         },
-        "example": "2026-05-01"
+        "example": "2026-03-01"
       },
       "EndDate": {
         "name": "end_date",
         "in": "query",
         "required": false,
-        "description": "End date for the requested news window.",
+        "description": "End date for the news timeframe, formatted as YYYY-MM-DD.",
         "schema": {
           "type": "string",
           "format": "date"
         },
-        "example": "2026-05-06"
+        "example": "2026-05-05"
+      },
+      "Category": {
+        "name": "category",
+        "in": "query",
+        "required": false,
+        "description": "Comma-separated list of news categories to include.",
+        "schema": {
+          "type": "string"
+        },
+        "example": "Capital Markets & Transactions,Strategic Developments,Leadership & Governance"
       },
       "Limit": {
         "name": "limit",
         "in": "query",
         "required": false,
-        "description": "Number of articles to return. Default is 10 and the maximum is 1000.",
+        "description": "Maximum number of news articles to return in the current response.",
         "schema": {
           "type": "integer",
           "default": 10,
@@ -160,7 +175,7 @@
         "name": "offset",
         "in": "query",
         "required": false,
-        "description": "Number of articles to skip before returning results.",
+        "description": "Number of records to skip before returning results. Use with limit for pagination.",
         "schema": {
           "type": "integer",
           "default": 0,
@@ -168,24 +183,15 @@
         },
         "example": 0
       },
-      "Category": {
-        "name": "category",
-        "in": "query",
-        "required": false,
-        "description": "Category filter accepted by the API.",
-        "schema": {
-          "type": "string"
-        }
-      },
-      "BlacklistedDomainsCsv": {
+      "Blacklisted": {
         "name": "blacklisted",
         "in": "query",
         "required": false,
-        "description": "Comma-separated publisher domains to suppress from results.",
+        "description": "Comma-separated list of publisher domains to exclude from results.",
         "schema": {
           "type": "string"
         },
-        "example": "example.com,anotherpublisher.com"
+        "example": "wokelo.ai"
       }
     },
     "schemas": {
@@ -193,157 +199,165 @@
         "type": "object",
         "additionalProperties": true,
         "required": [
+          "status",
           "data",
-          "count"
+          "count",
+          "total",
+          "limit",
+          "offset"
         ],
         "properties": {
           "status": {
             "type": "string",
-            "description": "Response status when returned by the API.",
+            "description": "Request status. Successful requests return success.",
+            "enum": [
+              "success"
+            ],
             "example": "success"
           },
           "data": {
             "type": "array",
+            "description": "Array of company news article objects.",
             "items": {
               "$ref": "#/components/schemas/CompanyNewsArticle"
             }
           },
           "count": {
             "type": "integer",
-            "description": "Number of records included in this response.",
+            "description": "Number of article objects returned in the current response.",
             "example": 1
           },
           "total": {
             "type": "integer",
-            "description": "Total number of matching records when returned by the API.",
-            "example": 1
+            "description": "Total number of articles matching the request filters.",
+            "example": 15
           },
           "limit": {
             "type": "integer",
-            "description": "Effective result limit.",
-            "example": 10
+            "description": "Maximum number of articles requested for the current response.",
+            "example": 2
           },
           "offset": {
             "type": "integer",
-            "description": "Effective result offset.",
-            "example": 0
+            "description": "Number of records skipped before the current response.",
+            "example": 1
           }
         }
       },
       "CompanyNewsArticle": {
         "type": "object",
         "additionalProperties": true,
-        "required": [
-          "ai_summary",
-          "url",
-          "title"
-        ],
         "properties": {
-          "id": {
-            "type": "integer",
-            "description": "News article identifier.",
-            "example": 10633767
-          },
           "ai_summary": {
             "type": "string",
-            "description": "AI-generated article summary."
+            "description": "AI-generated summary of the article.",
+            "example": "Tesla, GE Vernova, and IREN are highlighted as key energy stocks for watching."
           },
           "type": {
             "type": "string",
-            "description": "Primary event or news type.",
-            "example": "Secondary Transactions"
+            "description": "Event type assigned to the article.",
+            "example": "Equity Fund-Raising"
           },
           "url": {
             "type": "string",
             "format": "uri",
-            "description": "Source article URL."
+            "description": "Source article URL.",
+            "example": "https://www.defenseworld.net/2026/04/28/energy-stocks-to-keep-an-eye-on-april-26th.html"
           },
           "title": {
             "type": "string",
-            "description": "Article title."
+            "description": "Article headline.",
+            "example": "Energy Stocks To Keep An Eye On - April 26th"
           },
           "company_name": {
             "type": "string",
             "description": "Primary company associated with the article.",
             "example": "Tesla"
           },
-          "company_names": {
-            "type": "array",
-            "description": "Related companies or entities identified in the article.",
-            "items": {
-              "$ref": "#/components/schemas/CompanyReference"
-            }
-          },
           "publisher": {
             "type": "string",
-            "description": "Publisher or publication label.",
+            "description": "Publisher or source domain label.",
             "example": "defenseworld"
           },
           "published_date": {
             "type": "string",
             "description": "Publication timestamp returned by the API.",
-            "example": "2026-03-23 10:52:44"
-          },
-          "source": {
-            "type": "string",
-            "description": "Data source label.",
-            "example": "Wokelo"
+            "example": "2026-04-28 05:05:05"
           },
           "author": {
             "type": "string",
-            "description": "Article author when available.",
+            "description": "Article author, when available.",
             "example": "Defense World Staff"
           },
           "countries": {
             "type": "array",
-            "description": "Country labels associated with the article.",
+            "description": "Countries associated with the article.",
             "items": {
               "type": "string"
             },
             "example": [
-              "USA"
+              "USA",
+              "CHN",
+              "AUS"
             ]
           },
           "sentiment": {
             "type": "string",
-            "description": "Article sentiment label.",
+            "description": "Sentiment classification for the article.",
             "example": "Neutral"
+          },
+          "company_names": {
+            "type": "array",
+            "description": "Companies mentioned in the article, with name and website where available.",
+            "items": {
+              "$ref": "#/components/schemas/CompanyReference"
+            }
           },
           "primary_tag": {
             "type": "string",
-            "description": "Primary categorization tag.",
-            "example": "Secondary Transactions"
+            "description": "Primary news category or event tag assigned to the article.",
+            "example": "Equity Fund-Raising"
+          },
+          "original_language": {
+            "type": "string",
+            "description": "Original language code for the article.",
+            "example": "EN"
           },
           "secondary_tags": {
             "type": "array",
-            "description": "Additional categorization tags.",
+            "description": "Additional categories or event tags assigned to the article.",
             "items": {
               "type": "string"
             },
             "example": [
-              "Earnings Releases",
-              "Revenue & Growth Metrics"
+              "Market Indices Performance"
             ]
-          },
-          "original_language": {
-            "type": "string",
-            "description": "Original article language code when available.",
-            "example": "EN"
           },
           "newsworthiness_impact": {
             "type": "string",
-            "description": "Importance or impact label.",
+            "description": "Estimated impact level of the article.",
             "example": "Medium"
           },
           "primary_industry": {
             "type": "string",
-            "description": "Primary industry classification when returned by the API.",
-            "example": "Industrial Automation & Robotics"
+            "description": "Primary industry classification associated with the article.",
+            "example": "Retail Supply + DER/Virtual Power Plant Bundles (Solar, Storage, DR)"
           },
           "secondary_industry": {
+            "type": "array",
+            "description": "Additional industry classifications associated with the article.",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "Electrical Systems O&M (Substations, Transformers, Switchgear, Protection & Controls)",
+              "Risk Management & Hedging for Renewables (Price/Volume/Shape Risk, VaR)"
+            ]
+          },
+          "scraped_text": {
             "type": "string",
-            "description": "Secondary industry classification when returned by the API.",
-            "example": "Private Capital Markets"
+            "description": "Extracted article text.",
+            "example": "Tesla, GE Vernova, and IREN are the three Energy stocks to watch today..."
           }
         }
       },
@@ -373,20 +387,15 @@
             "description": "Error message returned by the API.",
             "example": "An unexpected error occurred. Please try again later."
           },
-          "status": {
-            "type": "string",
-            "description": "Error status label when returned by the API.",
-            "example": "error"
-          },
-          "message": {
-            "type": "string",
-            "description": "Human-readable error message.",
-            "example": "Request could not be processed."
-          },
           "detail": {
             "type": "string",
             "description": "Error detail returned by the API.",
-            "example": "Invalid request parameters."
+            "example": "Missing API key"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message, when returned by the API.",
+            "example": "Request could not be processed."
           }
         }
       }
@@ -440,6 +449,13 @@
           "application/json": {
             "schema": {
               "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "examples": {
+              "unexpected": {
+                "value": {
+                  "error": "An unexpected error occurred. Please try again later."
+                }
+              }
             }
           }
         }
@@ -452,41 +468,52 @@
           "status": "success",
           "data": [
             {
-              "ai_summary": "Nordea Investment Management AB reduced its stake in Tesla, Inc. by 8.4% in the fourth quarter, according to its SEC filing.",
-              "type": "Secondary Transactions",
-              "url": "https://www.defenseworld.net/2026/03/23/nordea-investment-management-ab-lowers-position-in-tesla-inc-tsla.html",
-              "title": "Nordea Investment Management AB Lowers Position in Tesla, Inc. $TSLA",
+              "ai_summary": "Tesla, GE Vernova, and IREN are highlighted as key energy stocks for watching, with Tesla involved in electric vehicles and energy systems, GE Vernova in electricity generation across multiple segments, and IREN operating bitcoin mining data centers. These companies represent diverse sectors within the energy industry.",
+              "type": "Equity Fund-Raising",
+              "url": "https://www.defenseworld.net/2026/04/28/energy-stocks-to-keep-an-eye-on-april-26th.html",
+              "title": "Energy Stocks To Keep An Eye On - April 26th",
               "company_name": "Tesla",
               "publisher": "defenseworld",
-              "published_date": "2026-03-23 10:52:44",
-              "source": "Wokelo",
+              "published_date": "2026-04-28 05:05:05",
               "author": "Defense World Staff",
               "countries": [
-                "USA"
+                "USA",
+                "CHN",
+                "AUS"
               ],
               "sentiment": "Neutral",
-              "primary_tag": "Secondary Transactions",
-              "original_language": "EN",
-              "secondary_tags": [
-                "Earnings Releases",
-                "Revenue & Growth Metrics",
-                "Guidance & Forecast Revisions"
-              ],
-              "newsworthiness_impact": "Medium",
-              "primary_industry": "Industrial Automation & Robotics",
-              "secondary_industry": "Private Capital Markets",
               "company_names": [
                 {
                   "name": "Tesla",
-                  "website": "https://www.tesla.com/"
+                  "website": "http://tesla-pa.com/"
+                },
+                {
+                  "name": "GE Vernova",
+                  "website": "https://www.gevernova.com"
+                },
+                {
+                  "name": "IREN",
+                  "website": "https://iren.com"
                 }
-              ]
+              ],
+              "primary_tag": "Equity Fund-Raising",
+              "original_language": "EN",
+              "secondary_tags": [
+                "Market Indices Performance"
+              ],
+              "newsworthiness_impact": "Medium",
+              "primary_industry": "Retail Supply + DER/Virtual Power Plant Bundles (Solar, Storage, DR)",
+              "secondary_industry": [
+                "Electrical Systems O&M (Substations, Transformers, Switchgear, Protection & Controls)",
+                "Risk Management & Hedging for Renewables (Price/Volume/Shape Risk, VaR)"
+              ],
+              "scraped_text": "Tesla, GE Vernova, and IREN are the three Energy stocks to watch today..."
             }
           ],
           "count": 1,
-          "total": 1,
-          "limit": 10,
-          "offset": 0
+          "total": 15,
+          "limit": 2,
+          "offset": 1
         }
       }
     }

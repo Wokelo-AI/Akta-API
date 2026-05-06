@@ -1,3 +1,8 @@
-curl --request GET \
-  --url 'https://api.akta.pro/api/v1/company/news/?company=wokelo-ai&limit=10' \
-  --header 'x-api-key: YOUR_API_KEY'
+curl -G "https://api.akta.pro/api/v1/company/news/" \
+  -H "x-api-key: YOUR_API_KEY" \
+  --data-urlencode "company=tesla" \
+  --data-urlencode "start_date=2026-03-01" \
+  --data-urlencode "end_date=2026-05-05" \
+  --data-urlencode "limit=10" \
+  --data-urlencode "offset=0" \
+  --data-urlencode "blacklisted=wokelo.ai"
