@@ -271,6 +271,10 @@ components:
       type: object
       additionalProperties: true
       properties:
+        error:
+          type: string
+          description: Error message returned by the API.
+          example: An unexpected error occurred. Please try again later.
         status:
           type: string
           description: Error status label when returned by the API.
@@ -315,9 +319,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
-        text/plain:
-          schema:
-            type: string
   examples:
     CompanyNewsResponse:
       summary: Company news response
