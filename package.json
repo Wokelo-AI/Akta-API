@@ -2,7 +2,7 @@
   "name": "@wokelo/akta-api-spec",
   "version": "1.0.0",
   "private": true,
-  "description": "OpenAPI specification and examples for the Akta structured news API.",
+  "description": "OpenAPI specification and examples for the Akta company news API.",
   "scripts": {
     "validate": "redocly lint --config .redocly.yaml openapi/openapi.yaml",
     "bundle": "redocly bundle --config .redocly.yaml openapi/openapi.yaml --output openapi/openapi.json"

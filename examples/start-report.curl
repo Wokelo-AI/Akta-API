@@ -1,5 +1,0 @@
-curl --request POST \
-  --url 'https://api.wokelo.ai/api/news/start/' \
-  --header 'Authorization: Bearer YOUR_TOKEN' \
-  --header 'Content-Type: application/json' \
-  --data '{"website": "wokelo.ai"}'

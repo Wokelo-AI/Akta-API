@@ -1,12 +1,11 @@
-# Akta News Monitoring API
+# Akta Company News API
 
-OpenAPI specification and integration examples for the Akta News Monitoring API by Wokelo AI.
+OpenAPI specification and integration examples for the Akta company news API by Wokelo AI.
 
-Akta is a structured news API for AI workflows, monitoring products, and business intelligence applications. It returns recent news articles enriched with AI-generated summaries, publisher metadata, entity context, sentiment, geography, categories, and impact signals.
+Akta provides structured company news monitoring with AI-generated summaries and article metadata.
 
 - Website: [akta.wokelo.ai](https://akta.wokelo.ai/)
-- API docs: [docs.akta.pro](https://docs.akta.pro/)
-- Get API access: [playground.akta.pro](https://playground.akta.pro/)
+- API access: [playground.akta.pro](https://playground.akta.pro/)
 
 ## API Spec
 
@@ -16,43 +15,38 @@ Akta is a structured news API for AI workflows, monitoring products, and busines
 ## Base URL
 
 ```text
-https://api.wokelo.ai
+https://api.akta.pro
 ```
 
 ## Authentication
 
-All endpoints require bearer authentication:
+Requests are authenticated with an API key in the `x-api-key` header:
 
 ```http
-Authorization: Bearer YOUR_TOKEN
+x-api-key: YOUR_API_KEY
 ```
-
-Use the token provided for your Akta API account.
 
 ## Endpoints
 
 | Method | Path | Status | Description |
 | --- | --- | --- | --- |
-| `GET` | `/api/enterprise/company/news/` | Current | Fetch news for a company using a company permalink or website URL. Supports publisher, category, date range, limit, and offset filters. |
-| `GET` | `/api/enterprise/industry/news/` | Current | Fetch news for an industry topic. Supports geography, date range, limit, offset, and excluded publisher filters. |
-| `POST` | `/api/enterprise/newsfeed/news/` | Current | Search the newsfeed using filters such as industry, geography, sentiment, publication date range, breaking-news status, limit, and offset. |
-| `POST` | `/api/news/start/` | Deprecated | Start a report-based company news run. |
-| `POST` | `/api/news/fetch/` | Deprecated | Fetch news items from a report-based company news run. |
+| `GET` | `/api/v1/company/news/` | Current | Fetch recent news for a company using a company slug or company website URL. Supports `start_date`, `end_date`, `limit`, `offset`, `category`, and `blacklisted`. |
 
 ## Response Data
 
-Responses vary by endpoint, but news records may include:
+News records may include:
 
 - `title`, `url`, and `published_date`
 - `ai_summary`
 - `publisher`, `author`, and `source`
-- `company_name` or related entity fields
-- `countries` or `geo`
+- `company_name` and `company_names`
+- `countries`
 - `sentiment`
 - `type`, `primary_tag`, and `secondary_tags`
+- `primary_industry` and `secondary_industry`
 - `newsworthiness_impact`
 
-Paginated responses include `count`, and may also include `total`, `limit`, and `offset`.
+Responses include `data` and `count`, and may also include `status`, `total`, `limit`, and `offset`.
 
 ## Quick Start
 
@@ -60,24 +54,8 @@ Fetch company news:
 
 ```bash
 curl --request GET \
-  --url 'https://api.wokelo.ai/api/enterprise/company/news/?company=tesla&category=PRODUCT%20RELATED&limit=100' \
-  --header 'Authorization: Bearer YOUR_TOKEN'
-```
-
-Search the newsfeed:
-
-```bash
-curl --request POST \
-  --url 'https://api.wokelo.ai/api/enterprise/newsfeed/news/' \
-  --header 'Authorization: Bearer YOUR_TOKEN' \
-  --header 'Content-Type: application/json' \
-  --data '{
-    "breaking_news": true,
-    "geo": ["USA"],
-    "sentiment": "positive",
-    "published_date_after": "2026-04-01",
-    "published_date_before": "2026-04-30"
-  }'
+  --url 'https://api.akta.pro/api/v1/company/news/?company=wokelo-ai&limit=10' \
+  --header 'x-api-key: YOUR_API_KEY'
 ```
 
 ## Validate
